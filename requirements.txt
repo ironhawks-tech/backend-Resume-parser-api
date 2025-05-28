@@ -10,3 +10,6 @@ psycopg2-binary
 sqlalchemy 
 
 pydantic[email]
+
+python-docx
+docx2txt
