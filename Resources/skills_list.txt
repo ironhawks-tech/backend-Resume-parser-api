@@ -1,0 +1,160 @@
+Python
+Java
+C++
+C#
+JavaScript
+TypeScript
+Go
+Ruby
+PHP
+Kotlin
+Swift
+R
+Rust
+SQL
+Bash
+HTML5
+CSS3
+React.js
+Angular
+Vue.js
+Next.js
+Node.js
+Express.js
+SASS
+SCSS
+Bootstrap
+Tailwind CSS
+React Native
+Flutter
+Android
+iOS
+Xamarin
+Ionic
+Django
+Flask
+FastAPI
+Spring Boot
+ASP.NET
+Laravel
+Ruby on Rails
+GraphQL
+REST APIs
+gRPC
+MySQL
+PostgreSQL
+MongoDB
+SQLite
+Oracle
+Redis
+Cassandra
+Firebase Realtime
+Firestore
+Docker
+Kubernetes
+Jenkins
+GitHub Actions
+GitLab CI/CD
+AWS
+EC2
+S3
+Lambda
+RDS
+Azure
+Google Cloud Platform
+Terraform
+Ansible
+Nginx
+Apache
+Git
+GitHub
+GitLab
+Bitbucket
+Jest
+Mocha
+Selenium
+Cypress
+JUnit
+Postman
+PyTest
+TestNG
+NumPy
+Pandas
+Matplotlib
+Seaborn
+Scikit-learn
+TensorFlow
+Keras
+PyTorch
+OpenCV
+XGBoost
+spaCy
+NLTK
+Hadoop
+Spark
+Hive
+Kafka
+Tableau
+Power BI
+Apache Airflow
+OWASP
+Burp Suite
+Metasploit
+Wireshark
+Penetration Testing
+Ethical Hacking
+Figma
+Adobe XD
+Sketch
+Adobe Photoshop
+Adobe Illustrator
+InVision
+Balsamiq
+WordPress
+Shopify
+Magento
+Wix
+Drupal
+BeautifulSoup
+Scrapy
+API Integration
+Chatbot Development
+Blockchain
+Arduino
+Raspberry Pi
+Robotic Process Automation
+Verbal Communication
+Written Communication
+Public Speaking
+Active Listening
+Empathy
+Collaboration
+Team Leadership
+Project Management
+Strategic Planning
+Delegation
+Conflict Resolution
+Decision Making
+Time Management
+Multitasking
+Attention to Detail
+Prioritization
+Goal Setting
+Meeting Deadlines
+Analytical Thinking
+Creativity
+Logical Reasoning
+Troubleshooting
+Root Cause Analysis
+Flexibility
+Self-Motivation
+Resilience
+Willingness to Learn
+Accountability
+Openness to Feedback
+Customer Service
+Sales
+Marketing
+Business Acumen
+Stakeholder Management
+Negotiation Skills

@@ -10,3 +10,12 @@ psycopg2-binary
 sqlalchemy 
 
 pydantic[email]
+
+pymupdf
+docx2txt
+python-docx
+spacy
+
+sentence-transformers
+
+python-dateutil

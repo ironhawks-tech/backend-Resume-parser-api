@@ -4,6 +4,10 @@ from services.file_service import validate_and_save_file
 from auth.dependencies import get_current_user
 from database import SessionLocal
 from datetime import datetime
+from services.pdf_parser_service import extract_clean_text_from_pdf
+from services.docx_parser_service import extract_clean_text_from_docx
+from services.section_segmenter import segment_resume_sections
+
 
 router = APIRouter()
 
@@ -13,9 +17,6 @@ def get_db():
         yield db
     finally:
         db.close()
-
-
-
 
 def log_upload(user_id: str, filename: str):
     upload_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -31,10 +32,34 @@ async def upload_resume(
     if email_id != current_user_email:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Email in token do not match!")
 
-    success, msg = validate_and_save_file(file, email_id, db)
+    success, msg, file_path = validate_and_save_file(file, email_id, db)
+    
     if not success:
         raise HTTPException(status_code=400, detail=msg)
     
+    # file_ext = file.filename.lower().split(".")[-1]
+    # extracted_text = ""
+
+    if file.filename.lower().endswith(".pdf"):
+        extracted_text = extract_clean_text_from_pdf(file_path)
+    elif file.filename.lower().endswith(".docx"):
+        extracted_text = extract_clean_text_from_docx(file_path)
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported file format for parsing.")
+    
+    
+ 
+
+
     log_upload(current_user_email, file.filename)
 
-    return {"status": "success", "message": "File uploaded successfully!!!!"}
+  
+    sections = segment_resume_sections(extracted_text)
+
+    
+
+    return {
+    "status": "success",
+    "message": "File uploaded and segmented successfully",
+    "sections": sections
+}

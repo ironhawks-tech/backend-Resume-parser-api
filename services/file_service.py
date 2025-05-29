@@ -32,7 +32,10 @@ def validate_and_save_file(file: UploadFile, email: str, db: Session):
         db.commit()
         db.refresh(resume_record)
 
-        return True, "File saved and metadata stored"
+        return True, "File saved and metadata stored", file_path
+
+
+
     except Exception as e:
         return False, str(e)
 
