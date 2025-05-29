@@ -11,7 +11,7 @@ sqlalchemy
 
 pydantic[email]
 
-<<<<<<< HEAD
+
 pymupdf
 docx2txt
 python-docx
@@ -20,7 +20,7 @@ spacy
 sentence-transformers
 
 python-dateutil
-=======
-python-docx
+
+
 docx2txt
->>>>>>> 5b7993ef074f585defc89153d05d06075f74551e
+
