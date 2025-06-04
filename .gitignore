@@ -1,5 +1,27 @@
+# Python
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.env
 .env
-.dllagent-env/
-*.dll
-*.lib
+
+# Virtual environment
+venv/
+env/
+*.egg-info/
+agent-env/
+
+
+# VSCode
+.vscode/
+
+# Docker
+*.log
+*.pid
+*.db
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,31 +1,38 @@
-
+version: "3.8"
 
 services:
-  resume_parser_app:
-    build: .
-    container_name: resume_parser_app
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    environment:
-      - DATABASE_URL=postgresql://postgres:test123@db:5432/resume_agent_db
-    volumes:
-      - .:/app
-    restart: always
-
   db:
-    image: postgres:13
-    container_name: postgres_db
+    image: postgres:15
+    container_name: resume_parser_db
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: test123
-      POSTGRES_DB: resume_agent_db
+      POSTGRES_DB: resume_parser_db
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    restart: always
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  resume_parser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: resume_parser_agent
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_HOST=http://host.docker.internal:11434
+      - OLLAMA_MODEL=mistral:latest
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=test123
+      - POSTGRES_DB=resume_parser_db
+      - POSTGRES_PORT=5432
+    depends_on:
+      - db
+    volumes:
+      - ./uploads:/app/uploads
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
+  pgdata:

@@ -6,7 +6,11 @@ from database import SessionLocal
 from datetime import datetime
 from services.pdf_parser_service import extract_clean_text_from_pdf
 from services.docx_parser_service import extract_clean_text_from_docx
-from services.section_segmenter import segment_resume_sections
+
+from services.ollama_llm import build_resume_prompt, call_mistral
+import json
+from fastapi.responses import JSONResponse
+
 
 
 router = APIRouter()
@@ -52,14 +56,25 @@ async def upload_resume(
 
 
     log_upload(current_user_email, file.filename)
-
-  
-    sections = segment_resume_sections(extracted_text)
-
     
 
-    return {
-    "status": "success",
-    "message": "File uploaded and segmented successfully",
-    "sections": sections
-}
+    prompt = build_resume_prompt(extracted_text)
+    print(f"EXTRACTED TEXT ", {extracted_text})
+
+    try:
+        structured_json = call_mistral(prompt)
+        parsed_output = json.loads(structured_json)  # ensure valid JSON
+    except Exception as e:
+      return JSONResponse(
+        status_code=500,
+        content={"status": "error", "message": f"LLM parsing failed: {str(e)}"}
+    )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+        "status": "success",
+        "message": "File uploaded and parsed successfully",
+        "Data": parsed_output
+    }
+)

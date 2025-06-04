@@ -13,14 +13,16 @@ pydantic[email]
 
 
 pymupdf
+pdfplumber
 docx2txt
 python-docx
-spacy
-
-sentence-transformers
 
 python-dateutil
 
+httpx 
+python-dotenv
+requests
 
-docx2txt
+
+
 
