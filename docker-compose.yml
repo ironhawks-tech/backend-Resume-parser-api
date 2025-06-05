@@ -1,38 +1,31 @@
-version: "3.8"
+version: '3.8'
 
 services:
-  db:
-    image: postgres:15
-    container_name: resume_parser_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: test123
-      POSTGRES_DB: resume_parser_db
-    ports:
-      - "5432:5432"
-    volumes:
-      - pgdata:/var/lib/postgresql/data
-    restart: unless-stopped
-
   resume_parser:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: resume_parser_agent
+    build: .
     ports:
       - "8000:8000"
     environment:
-      - OLLAMA_HOST=http://host.docker.internal:11434
-      - OLLAMA_MODEL=mistral:latest
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=test123
-      - POSTGRES_DB=resume_parser_db
-      - POSTGRES_PORT=5432
+      - MONGO_URI=mongodb://mongodb:27017/resume_parser_db
     depends_on:
-      - db
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
+    ports:
+      - "27017:27017"
     volumes:
-      - ./uploads:/app/uploads
-    restart: unless-stopped
+      - mongo_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+      - ME_CONFIG_MONGODB_PORT=27017
 
 volumes:
-  pgdata:
+  mongo_data:

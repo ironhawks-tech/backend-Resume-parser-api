@@ -6,8 +6,8 @@ python-jose[cryptography]
 passlib[bcrypt]
 pyjwt
 
-psycopg2-binary 
-sqlalchemy 
+pymongo
+ sqlalchemy 
 
 pydantic[email]
 

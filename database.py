@@ -1,13 +1,11 @@
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from pymongo import MongoClient
+import os
 
-DATABASE_URL = "postgresql://postgres:test123@db:5432/resume_agent_db"
+MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
+MONGO_DB_NAME = os.getenv("MONGO_DB_NAME", "resume_parser_db")
 
+client = MongoClient(MONGO_URI)
+db = client[MONGO_DB_NAME]
 
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base = declarative_base()
-
-
+users_collection = db.users        # Users collection
+resumes_collection = db.resumes    # Resumes collection
