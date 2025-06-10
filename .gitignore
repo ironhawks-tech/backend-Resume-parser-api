@@ -25,3 +25,6 @@ uploads/
 # OS files
 .DS_Store
 Thumbs.db
+
+services/scrapper.py
+

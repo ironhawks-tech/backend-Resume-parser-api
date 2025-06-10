@@ -7,6 +7,7 @@ services:
       - "8000:8000"
     environment:
       - MONGO_URI=mongodb://mongodb:27017/resume_parser_db
+
     depends_on:
       - mongodb
 
@@ -24,8 +25,12 @@ services:
     ports:
       - "8081:8081"
     environment:
-      - ME_CONFIG_MONGODB_SERVER=mongodb
-      - ME_CONFIG_MONGODB_PORT=27017
+    - ME_CONFIG_MONGODB_URL=mongodb://mongodb:27017
+    - ME_CONFIG_MONGODB_SERVER=mongodb
+    - ME_CONFIG_MONGODB_PORT=27017
+    - ME_CONFIG_BASICAUTH_USERNAME=admin
+    - ME_CONFIG_BASICAUTH_PASSWORD=admin123
+
 
 volumes:
   mongo_data:

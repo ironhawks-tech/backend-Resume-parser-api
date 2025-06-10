@@ -18,11 +18,13 @@ docx2txt
 python-docx
 
 python-dateutil
-
+selenium
 httpx 
 python-dotenv
 requests
-
+beautifulsoup4
+playwright
+undetected-chromedriver
 
 
 

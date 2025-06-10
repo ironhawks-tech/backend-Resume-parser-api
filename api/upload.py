@@ -9,6 +9,7 @@ from services.ollama_llm import build_resume_prompt, call_mistral
 import json
 from fastapi.responses import JSONResponse
 
+
 router = APIRouter()
 
 def log_upload(user_email: str, filename: str):
@@ -70,3 +71,5 @@ async def upload_resume(
             "Data": parsed_output
         }
     )
+
+
