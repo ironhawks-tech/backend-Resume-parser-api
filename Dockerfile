@@ -27,10 +27,41 @@ RUN apt-get update && apt-get install -y \
     libxtst6 \
     xdg-utils \
     libdrm2 \
+    poppler-utils \
+    build-essential \
+    wget \
+    curl \
+    gnupg \
+    ca-certificates \
+    unzip \
+    fonts-liberation \
+    libatk-bridge2.0-0 \
+    libgtk-3-0 \
     && rm -rf /var/lib/apt/lists/*
+
+
+# Install Chromium and get its version
+RUN apt-get update && apt-get install -y chromium
+
+# Install matching ChromeDriver for Chromium
+RUN CHROME_VERSION=$(chromium --version | grep -oP '\d+\.\d+\.\d+\.\d+') && \
+    echo "Detected Chromium version: $CHROME_VERSION" && \
+    wget -q "https://storage.googleapis.com/chrome-for-testing-public/$CHROME_VERSION/linux64/chromedriver-linux64.zip" && \
+    unzip chromedriver-linux64.zip && \
+    mv chromedriver-linux64/chromedriver /usr/local/bin/chromedriver && \
+    chmod +x /usr/local/bin/chromedriver && \
+    rm -rf chromedriver-linux64*
+
+
+# Set Selenium to use Chromium + ChromeDriver
+ENV CHROME_BIN=/usr/bin/chromium
+ENV PATH=$PATH:/usr/local/bin
+
 
 # Copy requirement files
 COPY requirements.txt .
+
+COPY user_agents_list.txt ./user_agents_list.txt
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -44,4 +75,4 @@ RUN apt-get update && apt-get install -y chromium
 # Copy app code
 COPY . .
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

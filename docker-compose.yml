@@ -5,6 +5,8 @@ services:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+    - .:/app
     environment:
       - MONGO_URI=mongodb://mongodb:27017/resume_parser_db
 
