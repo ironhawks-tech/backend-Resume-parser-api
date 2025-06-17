@@ -9,3 +9,6 @@ db = client[MONGO_DB_NAME]
 
 users_collection = db.users        # Users collection
 resumes_collection = db.resumes    # Resumes collection
+      
+jobs_collection = db.jobs          # Job listings
+user_searches_collection = db.user_searches 

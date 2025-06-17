@@ -1,8 +1,10 @@
 from fastapi import APIRouter, Query, HTTPException, Depends
 from services.job_scraper import LinkedINJobScraper
 from auth.dependencies import get_current_user
+from database import user_searches_collection  # Import new collection
 import asyncio
 import logging
+from datetime import datetime
 
 router = APIRouter()
 scraper = LinkedINJobScraper()
@@ -21,12 +23,12 @@ async def search_jobs(
         if not role.strip():
             raise HTTPException(status_code=400, detail="Role cannot be empty")
         
-        await asyncio.sleep(2)  # Initial delay
+        await asyncio.sleep(2)
         
         try:
             results = await asyncio.wait_for(
                 scraper.scrape_all_jobs(role, max_results),
-                timeout=300  # 5 minute timeout
+                timeout=300
             )
         except asyncio.TimeoutError:
             raise HTTPException(
@@ -36,6 +38,16 @@ async def search_jobs(
         
         if results["status"] == "error":
             raise HTTPException(status_code=500, detail=results["message"])
+        
+        # Store user search relationship
+        search_record = {
+            "user_email": current_user_email,
+            "role": role,
+            "location": location,
+            "timestamp": datetime.now(),
+            "job_links": [job["url"] for job in results["jobs"]]
+        }
+        user_searches_collection.insert_one(search_record)
         
         return {
             "status": "success",

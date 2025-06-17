@@ -17,10 +17,9 @@ class LinkedINJobScraper:
         self.max_retries = 3
         self.timeout = 60000
         self.db = self._init_db()
-        self.seen_jobs = set()  # Track seen job IDs to avoid duplicates
+        self.seen_links = set()
 
     def _load_user_agents(self):
-        """Load user agents from text file with error handling"""
         try:
             file_path = Path(__file__).parent / "user_agents_list.txt"
             with open(file_path, 'r', encoding='utf-8') as f:
@@ -44,7 +43,6 @@ class LinkedINJobScraper:
 
     async def scrape_linkedin_jobs(self, role, max_results=100):
         job_links = set()
-        retry_count = 0
         
         async with async_playwright() as p:
             browser = await p.chromium.launch(headless=True)
@@ -64,29 +62,25 @@ class LinkedINJobScraper:
                     search_url = (
                         f"https://www.linkedin.com/jobs/search/?keywords={role.replace(' ', '%20')}"
                         f"&location=India"
-                        f"&f_TPR=r86400" # Last 24 hours only
-                        f"&f_TPR=r2592000" #last 4 weeks
                         f"&start={start}"
                     )
                     
                     await page.goto(search_url, timeout=self.timeout)
                     await page.wait_for_selector('a[href*="/jobs/view/"]', timeout=15000)
                     
-                    # Scroll to load more jobs
                     await page.evaluate("window.scrollTo(0, document.body.scrollHeight)")
                     await asyncio.sleep(2)
                     
-                    # Get all job links
                     links = await page.query_selector_all('a[href*="/jobs/view/"]')
                     for link in links:
                         href = await link.get_attribute("href")
                         if href and "/jobs/view/" in href:
-                            job_id = href.split("/jobs/view/")[1].split("/")[0]
-                            if job_id not in self.seen_jobs:
-                                clean_url = f"https://www.linkedin.com/jobs/view/{job_id}/"
+                            if not href.startswith('http'):
+                                 href = urljoin('https://www.linkedin.com', href)
+                            clean_url = href.split('?')[0]
+                            if clean_url not in self.seen_links:
                                 job_links.add(clean_url)
-                                self.seen_jobs.add(job_id)
-                                
+                                self.seen_links.add(clean_url)
                                 if len(job_links) >= max_results:
                                     await browser.close()
                                     return list(job_links)
@@ -110,13 +104,11 @@ class LinkedINJobScraper:
             response = requests.get(url, headers=headers, timeout=15)
             soup = BeautifulSoup(response.text, 'html.parser')
             
-            # Extract basic info
             title = soup.title.string.split("|")[0].strip() if soup.title else "No Title"
             company = "Unknown"
             location = "India"
             description = ""
             
-            # Extract from JSON-LD
             script_tag = soup.find('script', type='application/ld+json')
             if script_tag:
                 try:
@@ -127,13 +119,11 @@ class LinkedINJobScraper:
                 except json.JSONDecodeError:
                     pass
             
-            # Fallback extraction
             if not description:
                 description_div = soup.find('div', {'class': 'description__text'})
                 if description_div:
                     description = description_div.get_text(strip=True)
             
-            # Build job data
             job_data = {
                 "title": title[:200],
                 "company": company[:100],
@@ -143,12 +133,12 @@ class LinkedINJobScraper:
                 "source": "LinkedIn",
                 "country": "India",
                 "timestamp": datetime.now(),
-                "job_id": url.split("/jobs/view/")[1].split("/")[0]
+                
             }
             
-            # Upsert to MongoDB
+            # Store only job details (no user info)
             self.db.update_one(
-                {"job_id": job_data["job_id"]},
+                {"url": job_data["url"]},
                 {"$set": job_data},
                 upsert=True
             )
@@ -160,19 +150,15 @@ class LinkedINJobScraper:
             return None
 
     async def scrape_all_jobs(self, role, max_results=100):
-        self.seen_jobs = set()  # Reset for new search
+        self.seen_links = set()
         try:
-            print(f"\nStarting to scrape LinkedIn for '{role}' jobs in India...")
-            
             job_links = await self.scrape_linkedin_jobs(role, max_results)
-            print(f"Found {len(job_links)} unique job links")
             
             jobs = []
-            for idx, url in enumerate(job_links, 1):
+            for url in job_links:
                 job = await self.get_job_details(url)
                 if job:
                     jobs.append(job)
-                    print(f"Processed {idx}/{len(job_links)}: {job['title'][:50]}...")
                 await asyncio.sleep(random.uniform(1, 3))
             
             return {
@@ -189,3 +175,4 @@ class LinkedINJobScraper:
                 "message": str(e),
                 "timestamp": datetime.now()
             }
+  
