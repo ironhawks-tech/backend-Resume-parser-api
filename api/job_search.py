@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Query, HTTPException, Depends
 from services.job_scraper import LinkedINJobScraper
 from auth.dependencies import get_current_user
-from database import user_searches_collection  # Import new collection
 import asyncio
 import logging
 from datetime import datetime
@@ -15,15 +14,15 @@ async def search_jobs(
     role: str = Query(..., min_length=2, example="python developer"),
     max_results: int = Query(50, ge=1, le=200),
     location: str = Query("India", description="Job location"),
-    current_user_email: str = Depends(get_current_user)
+    current_user_email: str = Depends(get_current_user)  # Still required for auth
 ):
     try:
-        logger.info(f"Job search request from {current_user_email} for {role} in {location}")
+        logger.info(f"Job search for {role} in {location}")
         
         if not role.strip():
             raise HTTPException(status_code=400, detail="Role cannot be empty")
         
-        await asyncio.sleep(2)
+        await asyncio.sleep(2)  # Rate limiting
         
         try:
             results = await asyncio.wait_for(
@@ -33,31 +32,19 @@ async def search_jobs(
         except asyncio.TimeoutError:
             raise HTTPException(
                 status_code=504,
-                detail="Job search timed out. Please try again with a more specific role."
+                detail="Job search timed out. Please try again."
             )
         
         if results["status"] == "error":
             raise HTTPException(status_code=500, detail=results["message"])
         
-        # Store user search relationship
-        search_record = {
-            "user_email": current_user_email,
-            "role": role,
-            "location": location,
-            "timestamp": datetime.now(),
-            "job_links": [job["url"] for job in results["jobs"]]
-        }
-        user_searches_collection.insert_one(search_record)
-        
         return {
             "status": "success",
             "role": role,
             "location": location,
-            "time_period": "past 4 weeks",
             "total_results": results["total_results"],
             "jobs": results["jobs"],
-            "user": current_user_email,
-            "timestamp": results["timestamp"]
+            "timestamp": datetime.now()
         }
         
     except HTTPException:
@@ -66,5 +53,5 @@ async def search_jobs(
         logger.error(f"Unexpected error: {str(e)}")
         raise HTTPException(
             status_code=500,
-            detail=f"Job search failed. Please try again. Error: {str(e)}"
+            detail="Job search failed. Please try again."
         )

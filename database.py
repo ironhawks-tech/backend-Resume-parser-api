@@ -1,4 +1,4 @@
-from pymongo import MongoClient
+from pymongo import MongoClient, ASCENDING
 import os
 
 MONGO_URI = os.getenv("MONGO_URI", "mongodb://mongodb:27017")
@@ -9,6 +9,14 @@ db = client[MONGO_DB_NAME]
 
 users_collection = db.users        # Users collection
 resumes_collection = db.resumes    # Resumes collection
+jobs_collection = db.jobs
+
+# Create indexes for faster queries
+jobs_collection.create_index([("url", ASCENDING)], unique=True)
+jobs_collection.create_index([("title", ASCENDING)])
+jobs_collection.create_index([("company", ASCENDING)])
+jobs_collection.create_index([("location", ASCENDING)])
+jobs_collection.create_index([("description_text", "text")])
       
-jobs_collection = db.jobs          # Job listings
-user_searches_collection = db.user_searches 
+
+
